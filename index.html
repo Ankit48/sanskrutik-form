@@ -901,12 +901,25 @@
             }
         });
 
+        // Helper function to hash a string to SHA-256 using native SubtleCrypto
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
         // Verify password and trigger export
         async function handleExport() {
             const enteredPassword = adminPasswordInput.value;
             modalAlert.style.display = 'none';
 
-            if (enteredPassword !== 'sans2026') {
+            // Hash the password and compare it to the target SHA-256 hash
+            const enteredHash = await sha256(enteredPassword);
+            const targetHash = 'c4991200caeded0356af9a87e9f14c03465b71b08e6482ca11ce1b985b76b3ad'; // SHA-256 of 'sans2026'
+
+            if (enteredHash !== targetHash) {
                 modalAlertText.textContent = 'Incorrect password. Access denied.';
                 modalAlert.style.display = 'flex';
                 adminPasswordInput.focus();
