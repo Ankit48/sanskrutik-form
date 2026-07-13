@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Portal | Supabase Database Form</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --accent-color: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.45);
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-focus: rgba(99, 102, 241, 0.5);
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --font-heading: 'Outfit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            margin-top: 1.5rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .logo-area {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-icon {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, var(--accent-color), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.3));
+        }
+
+        h1 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 2.2rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #ffffff, #d1d5db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Glassmorphic Card Style */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2.25rem;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.05);
+        }
+
+        .card-title {
+            font-family: var(--font-heading);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #ffffff;
+        }
+
+        .card-title i {
+            color: var(--accent-color);
+        }
+
+        /* Form styling */
+        .form-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: color 0.3s;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1.25rem;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            transition: color 0.3s;
+            pointer-events: none;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.95rem 1rem 0.95rem 2.8rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-color);
+            background: rgba(99, 102, 241, 0.03);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        }
+
+        .form-input:focus+.input-icon {
+            color: var(--accent-color);
+        }
+
+        .form-input::placeholder {
+            color: rgba(156, 163, 175, 0.4);
+        }
+
+        /* Feedback styling */
+        .feedback {
+            font-size: 0.8rem;
+            color: var(--error-color);
+            margin-top: 0.35rem;
+            display: none;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent-color) 0%, #4f46e5 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px var(--accent-glow);
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+            filter: brightness(1.1);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            background: #374151;
+            box-shadow: none;
+            cursor: not-allowed;
+            color: #9ca3af;
+        }
+
+        /* Spinner for loading */
+        .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Alerts system */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: none;
+            align-items: flex-start;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .alert i {
+            font-size: 1.1rem;
+            margin-top: 0.1rem;
+        }
+
+        /* Database instructions panel */
+        .sql-panel {
+            grid-column: 1 / -1;
+            margin-top: 1rem;
+        }
+
+        .sql-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sql-header h3 {
+            font-size: 1rem;
+            font-family: var(--font-heading);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sql-body {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: none;
+            /* Toggleable */
+            animation: slideDown 0.2s ease-out;
+        }
+
+        .sql-body.show {
+            display: block;
+        }
+
+        .code-block-wrapper {
+            position: relative;
+            margin-top: 0.75rem;
+        }
+
+        pre {
+            background: #030712;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            color: #e5e7eb;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        .btn-copy {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            padding: 0.35rem 0.65rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .btn-copy:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Submissions View Column */
+        .submissions-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .submissions-list {
+            max-height: 380px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            padding-right: 0.25rem;
+        }
+
+        /* Custom Scrollbar for Submissions */
+        .submissions-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .submissions-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+        }
+
+        .submissions-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .submissions-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .submission-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            transition: all 0.2s;
+        }
+
+        .submission-card:hover {
+            border-color: rgba(99, 102, 241, 0.2);
+            background: rgba(99, 102, 241, 0.02);
+            transform: scale(1.01);
+        }
+
+        .submission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .sub-name {
+            font-weight: 600;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .sub-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+        }
+
+        .sub-info span {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .sub-info i {
+            color: var(--accent-color);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 2.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .no-data i {
+            font-size: 2rem;
+            opacity: 0.3;
+        }
+
+        .status-badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* Modal styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 15, 25, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 400px;
+            animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes scaleUp {
+            from {
+                transform: scale(0.9) translateY(10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-title {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.25rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        /* Secondary Button Styling */
+        .btn-secondary {
+            padding: 0.8rem 1.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Export Excel button below form */
+        .export-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .btn-export {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.85rem 1.5rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 12px;
+            color: var(--success-color);
+            font-family: var(--font-heading);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.05);
+        }
+
+        .btn-export:hover {
+            background: var(--success-color);
+            color: #0b0f19;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo-area">
+
+            <h1>સાંસ્ક્રુતિક કાર્યક્રમ રજિસ્ટ્રેશન ફોર્મ</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Left Column: Form -->
+        <div class="glass-card">
+            <div class="card-title">
+                <i class="fa-regular fa-id-card"></i>
+                Submit Details
+            </div>
+
+            <!-- Global Response Alert -->
+            <div id="submit-alert" class="alert">
+                <i id="alert-icon" class="fa-solid"></i>
+                <div id="alert-message"></div>
+            </div>
+
+            <form id="submission-form" novalidate>
+                <!-- Name Field -->
+                <div class="form-group">
+                    <label class="form-label" for="name">Full Name</label>
+                    <div class="input-wrapper">
+                        <input class="form-input" type="text" id="name" name="name" required placeholder="John Doe">
+                        <i class="fa-regular fa-user input-icon"></i>
+                    </div>
+                    <div class="feedback" id="name-feedback">
+                        <i class="fa-solid fa-circle-exclamation"></i> Please enter your name.
+                    </div>
+                </div>
+
+                <!-- Age Field -->
+                <div class="form-group">
+                    <label class="form-label" for="age">Age</label>
+                    <div class="input-wrapper">
+                        <input class="form-input" type="number" id="age" name="age" required min="1" max="120"
+                            placeholder="25">
+                        <i class="fa-solid fa-arrow-up-1-9 input-icon"></i>
+                    </div>
+                    <div class="feedback" id="age-feedback">
+                        <i class="fa-solid fa-circle-exclamation"></i> Please enter a valid age between 1 and 120.
+                    </div>
+                </div>
+
+                <!-- Mobile Number Field -->
+                <div class="form-group">
+                    <label class="form-label" for="mobile">Mobile Number</label>
+                    <div class="input-wrapper">
+                        <input class="form-input" type="tel" id="mobile" name="mobile" required
+                            placeholder="9876543210">
+                        <i class="fa-solid fa-phone input-icon"></i>
+                    </div>
+                    <div class="feedback" id="mobile-feedback">
+                        <i class="fa-solid fa-circle-exclamation"></i> Please enter a valid 10-digit mobile number.
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-submit" class="btn-submit">
+                    <span id="btn-text">Submit Registration</span>
+                    <div id="btn-spinner" class="spinner"></div>
+                </button>
+            </form>
+        </div>
+
+        <!-- Only display the centered submission form -->
+
+        <!-- Export Excel button below form -->
+        <div class="export-container">
+            <button type="button" id="btn-export-trigger" class="btn-export">
+                <i class="fa-solid fa-file-excel"></i> Download Excel Sheet
+            </button>
+        </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div id="password-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <h3 class="modal-title"><i class="fa-solid fa-lock"></i> Enter Admin Password</h3>
+            <p class="modal-subtitle">Authentication required to download registrations</p>
+            <div id="modal-alert" class="alert alert-error"
+                style="margin-bottom: 1rem; padding: 0.75rem 1rem; display: none;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="modal-alert-text"></span>
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <div class="input-wrapper">
+                    <input class="form-input" type="password" id="admin-password" placeholder="••••••••"
+                        style="padding-left: 2.8rem;">
+                    <i class="fa-solid fa-key input-icon" style="left: 1.25rem;"></i>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="btn-modal-cancel" class="btn-secondary">Cancel</button>
+                <button type="button" id="btn-modal-confirm" class="btn-submit"
+                    style="margin-top: 0; width: auto; padding: 0.8rem 1.5rem;">Unlock & Download</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://rlvljmkbnxdlzqmrwelt.supabase.co';
+        // Using the anon key for client-side queries (Secret key/service_role key should never be used client-side for security)
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsdmxqbWtibnhkbHpxbXJ3ZWx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4NjQyNzAsImV4cCI6MjA5OTQ0MDI3MH0.whEz4sMbWmCrvvxHp8FTaMnjmReh_9NmZPi5GPpeC1A';
+
+        // Initialize Supabase Client
+        let supabaseClient;
+        try {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (error) {
+            console.error("Failed to initialize Supabase client:", error);
+        }
+
+        // DOM elements
+        const form = document.getElementById('submission-form');
+        const nameInput = document.getElementById('name');
+        const ageInput = document.getElementById('age');
+        const mobileInput = document.getElementById('mobile');
+
+        const nameFeedback = document.getElementById('name-feedback');
+        const ageFeedback = document.getElementById('age-feedback');
+        const mobileFeedback = document.getElementById('mobile-feedback');
+
+        const btnSubmit = document.getElementById('btn-submit');
+        const btnText = document.getElementById('btn-text');
+        const btnSpinner = document.getElementById('btn-spinner');
+
+        const submitAlert = document.getElementById('submit-alert');
+        const alertIcon = document.getElementById('alert-icon');
+        const alertMessage = document.getElementById('alert-message');
+
+        // Validation Regex
+        const mobileRegex = /^[0-9]{10}$/;
+
+        // Show error message helper
+        function showAlert(message, type = 'success') {
+            submitAlert.style.display = 'flex';
+            alertMessage.textContent = message;
+
+            if (type === 'success') {
+                submitAlert.className = 'alert alert-success';
+                alertIcon.className = 'fa-solid fa-circle-check';
+            } else {
+                submitAlert.className = 'alert alert-error';
+                alertIcon.className = 'fa-solid fa-circle-exclamation';
+            }
+
+            // Scroll to the alert on smaller screens
+            submitAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Hide alert helper
+        function hideAlert() {
+            submitAlert.style.display = 'none';
+        }
+
+        // Validate individual field
+        function validateField(input, feedbackEl, condition) {
+            if (condition) {
+                input.style.borderColor = 'var(--border-color)';
+                feedbackEl.style.display = 'none';
+                return true;
+            } else {
+                input.style.borderColor = 'var(--error-color)';
+                feedbackEl.style.display = 'flex';
+                return false;
+            }
+        }
+
+        // Form Validation Logic
+        function validateForm() {
+            const isNameValid = validateField(nameInput, nameFeedback, nameInput.value.trim() !== '');
+
+            const ageVal = parseInt(ageInput.value, 10);
+            const isAgeValid = validateField(ageInput, ageFeedback, !isNaN(ageVal) && ageVal >= 1 && ageVal <= 120);
+
+            const isMobileValid = validateField(mobileInput, mobileFeedback, mobileRegex.test(mobileInput.value.trim()));
+
+            return isNameValid && isAgeValid && isMobileValid;
+        }
+
+        // Add real-time input listeners to remove error state on edit
+        nameInput.addEventListener('input', () => {
+            if (nameInput.value.trim() !== '') validateField(nameInput, nameFeedback, true);
+        });
+        ageInput.addEventListener('input', () => {
+            const ageVal = parseInt(ageInput.value, 10);
+            if (!isNaN(ageVal) && ageVal >= 1 && ageVal <= 120) validateField(ageInput, ageFeedback, true);
+        });
+        mobileInput.addEventListener('input', () => {
+            if (mobileRegex.test(mobileInput.value.trim())) validateField(mobileInput, mobileFeedback, true);
+        });
+
+        // Set Loading State
+        function setLoading(isLoading) {
+            if (isLoading) {
+                btnSubmit.disabled = true;
+                btnText.style.display = 'none';
+                btnSpinner.style.display = 'block';
+            } else {
+                btnSubmit.disabled = false;
+                btnText.style.display = 'block';
+                btnSpinner.style.display = 'none';
+            }
+        }
+
+        // Handle Form Submit
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlert();
+
+            if (!validateForm()) {
+                showAlert('Please correct the validation errors in the form.', 'error');
+                return;
+            }
+
+            if (!supabaseClient) {
+                showAlert('Supabase is not correctly initialized.', 'error');
+                return;
+            }
+
+            setLoading(true);
+
+            const submissionData = {
+                name: nameInput.value.trim(),
+                age: parseInt(ageInput.value, 10),
+                mobile_number: mobileInput.value.trim()
+            };
+
+            try {
+                // Check if a record with the same name and age already exists
+                const { data: existingSubmissions, error: checkError } = await supabaseClient
+                    .from('submissions')
+                    .select('id')
+                    .eq('name', submissionData.name)
+                    .eq('age', submissionData.age)
+                    .limit(1);
+
+                if (checkError) throw checkError;
+
+                if (existingSubmissions && existingSubmissions.length > 0) {
+                    showAlert('A registration with the same name and age already exists.', 'error');
+                    setLoading(false);
+                    return;
+                }
+
+                const { data, error } = await supabaseClient
+                    .from('submissions')
+                    .insert([submissionData])
+                    .select();
+
+                if (error) throw error;
+
+                showAlert('Registration successfully submitted and stored!', 'success');
+                form.reset();
+
+            } catch (error) {
+                console.error("Submission error:", error);
+                showAlert(`Failed to save to database: ${error.message || 'Unknown error'}. Check if the SQL schema is set up in your Supabase project.`, 'error');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Excel download password modal logic
+        const btnExportTrigger = document.getElementById('btn-export-trigger');
+        const passwordModal = document.getElementById('password-modal');
+        const adminPasswordInput = document.getElementById('admin-password');
+        const btnModalCancel = document.getElementById('btn-modal-cancel');
+        const btnModalConfirm = document.getElementById('btn-modal-confirm');
+        const modalAlert = document.getElementById('modal-alert');
+        const modalAlertText = document.getElementById('modal-alert-text');
+
+        // Open Modal
+        btnExportTrigger.addEventListener('click', () => {
+            adminPasswordInput.value = '';
+            modalAlert.style.display = 'none';
+            passwordModal.style.display = 'flex';
+            adminPasswordInput.focus();
+        });
+
+        // Close Modal
+        function closeModal() {
+            passwordModal.style.display = 'none';
+            adminPasswordInput.value = '';
+        }
+        btnModalCancel.addEventListener('click', closeModal);
+
+        // Close modal when clicking outside content
+        passwordModal.addEventListener('click', (e) => {
+            if (e.target === passwordModal) {
+                closeModal();
+            }
+        });
+
+        // Verify password and trigger export
+        async function handleExport() {
+            const enteredPassword = adminPasswordInput.value;
+            modalAlert.style.display = 'none';
+
+            if (enteredPassword !== 'sans2026') {
+                modalAlertText.textContent = 'Incorrect password. Access denied.';
+                modalAlert.style.display = 'flex';
+                adminPasswordInput.focus();
+                return;
+            }
+
+            // Disable modal button & show spinner/text
+            btnModalConfirm.disabled = true;
+            const originalBtnText = btnModalConfirm.textContent;
+            btnModalConfirm.textContent = 'Downloading...';
+
+            try {
+                if (!supabaseClient) {
+                    throw new Error('Supabase client is not initialized.');
+                }
+
+                // Fetch all registrations
+                const { data, error } = await supabaseClient
+                    .from('submissions')
+                    .select('*')
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    alert('No submissions found in the database to download.');
+                    closeModal();
+                    return;
+                }
+
+                // Download CSV
+                downloadCSV(data);
+                closeModal();
+            } catch (err) {
+                console.error("Export error:", err);
+                modalAlertText.textContent = `Failed to fetch data: ${err.message || 'Unknown error'}`;
+                modalAlert.style.display = 'flex';
+            } finally {
+                btnModalConfirm.disabled = false;
+                btnModalConfirm.textContent = originalBtnText;
+            }
+        }
+
+        btnModalConfirm.addEventListener('click', handleExport);
+        adminPasswordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                handleExport();
+            }
+        });
+
+        // CSV download generator function
+        function downloadCSV(data) {
+            const headers = ['ID', 'Registration Time', 'Full Name', 'Age', 'Mobile Number'];
+            const rows = data.map(sub => [
+                sub.id,
+                sub.created_at ? new Date(sub.created_at).toLocaleString('en-IN') : 'N/A',
+                sub.name,
+                sub.age,
+                sub.mobile_number
+            ]);
+
+            // Construct CSV content with UTF-8 BOM so Excel opens Gujarati/Hindi characters correctly
+            const csvContent = "\uFEFF"
+                + [headers.join(','), ...rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `registrations_export_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+
+</html>
