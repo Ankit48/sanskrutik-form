@@ -191,6 +191,11 @@
             color: rgba(156, 163, 175, 0.4);
         }
 
+        .form-input option {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
         /* Feedback styling */
         .feedback {
             font-size: 0.8rem;
@@ -663,6 +668,23 @@
                     </div>
                 </div>
 
+                <!-- Participate In Field -->
+                <div class="form-group">
+                    <label class="form-label" for="participation">Participate In</label>
+                    <div class="input-wrapper">
+                        <select class="form-input" id="participation" name="participation" required style="appearance: none; -webkit-appearance: none; -moz-appearance: none; padding-right: 2.5rem;">
+                            <option value="" disabled selected hidden>Select option</option>
+                            <option value="Dance">Dance</option>
+                            <option value="Play">Play</option>
+                        </select>
+                        <i class="fa-solid fa-masks-theater input-icon"></i>
+                        <i class="fa-solid fa-chevron-down" style="position: absolute; right: 1.25rem; color: var(--text-secondary); pointer-events: none;"></i>
+                    </div>
+                    <div class="feedback" id="participation-feedback">
+                        <i class="fa-solid fa-circle-exclamation"></i> Please select what you want to participate in.
+                    </div>
+                </div>
+
                 <button type="submit" id="btn-submit" class="btn-submit">
                     <span id="btn-text">Submit Registration</span>
                     <div id="btn-spinner" class="spinner"></div>
@@ -724,10 +746,12 @@
         const nameInput = document.getElementById('name');
         const ageInput = document.getElementById('age');
         const mobileInput = document.getElementById('mobile');
+        const participationInput = document.getElementById('participation');
 
         const nameFeedback = document.getElementById('name-feedback');
         const ageFeedback = document.getElementById('age-feedback');
         const mobileFeedback = document.getElementById('mobile-feedback');
+        const participationFeedback = document.getElementById('participation-feedback');
 
         const btnSubmit = document.getElementById('btn-submit');
         const btnText = document.getElementById('btn-text');
@@ -784,7 +808,9 @@
 
             const isMobileValid = validateField(mobileInput, mobileFeedback, mobileRegex.test(mobileInput.value.trim()));
 
-            return isNameValid && isAgeValid && isMobileValid;
+            const isParticipationValid = validateField(participationInput, participationFeedback, participationInput.value !== '');
+
+            return isNameValid && isAgeValid && isMobileValid && isParticipationValid;
         }
 
         // Add real-time input listeners to remove error state on edit
@@ -797,6 +823,9 @@
         });
         mobileInput.addEventListener('input', () => {
             if (mobileRegex.test(mobileInput.value.trim())) validateField(mobileInput, mobileFeedback, true);
+        });
+        participationInput.addEventListener('change', () => {
+            if (participationInput.value !== '') validateField(participationInput, participationFeedback, true);
         });
 
         // Set Loading State
@@ -832,7 +861,8 @@
             const submissionData = {
                 name: nameInput.value.trim(),
                 age: parseInt(ageInput.value, 10),
-                mobile_number: mobileInput.value.trim()
+                mobile_number: mobileInput.value.trim(),
+                participation: participationInput.value
             };
 
             try {
@@ -1036,13 +1066,14 @@
 
         // CSV download generator function
         function downloadCSV(data) {
-            const headers = ['ID', 'Registration Time', 'Full Name', 'Age', 'Mobile Number'];
+            const headers = ['ID', 'Registration Time', 'Full Name', 'Age', 'Mobile Number', 'Participate In'];
             const rows = data.map(sub => [
                 sub.id,
                 sub.created_at ? new Date(sub.created_at).toLocaleString('en-IN') : 'N/A',
                 sub.name,
                 sub.age,
-                sub.mobile_number
+                sub.mobile_number,
+                sub.participation || 'N/A'
             ]);
 
             // Construct CSV content with UTF-8 BOM so Excel opens Gujarati/Hindi characters correctly
