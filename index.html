@@ -979,8 +979,34 @@
             link.setAttribute("download", `registrations_export_${new Date().toISOString().slice(0, 10)}.csv`);
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
         }
+
+        // --- Inspection Blocker Deterrents ---
+        
+        // Disable Right-Click Context Menu
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        // Disable Common Developer Shortcut Keys
+        document.addEventListener('keydown', (e) => {
+            // Disable F12 Key
+            if (e.key === 'F12') {
+                e.preventDefault();
+            }
+            // Disable Ctrl+Shift+I (Inspect), Ctrl+Shift+J (Console), Ctrl+Shift+C (Inspect Element)
+            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C' || e.key === 'i' || e.key === 'j' || e.key === 'c')) {
+                e.preventDefault();
+            }
+            // Disable Ctrl+U (View Source)
+            if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+                e.preventDefault();
+            }
+            // Disable Ctrl+S (Save Page)
+            if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
+                e.preventDefault();
+            }
+        });
     </script>
 </body>
 
